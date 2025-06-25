@@ -1,4 +1,4 @@
-# --- ここから下をすべてコピーしてください ---
+# --- この内容で docker-compose.yml を完全に上書きしてください ---
 
 version: '3.8'
 
@@ -7,7 +7,10 @@ services:
   # 1. あなたのWebアプリケーション (Tomcat)
   # ------------------------------------
   ams:
-    image: raimu830/ams:latest
+    # ローカルのDockerfileからビルドします
+    build:
+      context: .
+      dockerfile: Dockerfile-tomcat
     container_name: AMS
     ports:
       - "8080:8080"
@@ -17,22 +20,21 @@ services:
       - my-app-network
 
   # ------------------------------------
-  # 2. MySQL データベース
+  # 2. MySQL データベース - 【修正箇所】
   # ------------------------------------
   mysql-db:
     image: mysql:8.0
     container_name: mysql-db
     ports:
       - "3306:3306"
-    # --- ★★★ 環境変数の設定 (重要) ★★★ ---
     environment:
       # rootユーザーのパスワードを空にする設定
       MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
-      # 作成するデータベースの名前（任意の名前に変更してください）
-      MYSQL_DATABASE: my_app_db
-    # --- ★★★★★★★★★★★★★★★★★★★★★★★ ---
+      # ★★★ 作成するデータベースの名前を「AMS」に変更 ★★★
+      MYSQL_DATABASE: AMS
     volumes:
       - mysql-data:/var/lib/mysql
+      # このフォルダ内のSQLが初回起動時に実行されます
       - ./initdb.d:/docker-entrypoint-initdb.d
     networks:
       - my-app-network
@@ -48,8 +50,6 @@ services:
       - "8081:80"
     environment:
       PMA_HOST: mysql-db
-      # パスワードなしでのログインを許可する設定
-      PMA_ARBITRARY: 1
     depends_on:
       - mysql-db
     networks:
@@ -66,4 +66,4 @@ networks:
 volumes:
   mysql-data:
 
-# --- ここまでをすべてコピーしてください ---
+# --- 上書きはここまで ---

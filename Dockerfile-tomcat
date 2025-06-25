@@ -1,0 +1,12 @@
+# Tomcatの公式イメージをベースとする (Java 17対応版)
+FROM tomcat:9.0-jdk17-openjdk
+
+# WARファイルはdocker-compose.ymlでvolumesを使ってマウントするため、ここではコピー不要
+# 必要に応じてTomcatの設定を調整
+
+# Tomcatのデフォルトポート8080を公開 (docker-compose.ymlでマッピング)
+EXPOSE 8080
+
+# コンテナ起動時にTomcatを起動
+# ベースイメージに設定されているため通常は不要ですが、もしTomcatが起動しない場合は追加を検討
+# CMD ["catalina.sh", "run"]

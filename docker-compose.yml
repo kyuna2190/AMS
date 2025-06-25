@@ -1,0 +1,69 @@
+# --- ここから下をすべてコピーしてください ---
+
+version: '3.8'
+
+services:
+  # ------------------------------------
+  # 1. あなたのWebアプリケーション (Tomcat)
+  # ------------------------------------
+  ams:
+    image: raimu830/ams:latest
+    container_name: AMS
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql-db
+    networks:
+      - my-app-network
+
+  # ------------------------------------
+  # 2. MySQL データベース
+  # ------------------------------------
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql-db
+    ports:
+      - "3306:3306"
+    # --- ★★★ 環境変数の設定 (重要) ★★★ ---
+    environment:
+      # rootユーザーのパスワードを空にする設定
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+      # 作成するデータベースの名前（任意の名前に変更してください）
+      MYSQL_DATABASE: my_app_db
+    # --- ★★★★★★★★★★★★★★★★★★★★★★★ ---
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./initdb.d:/docker-entrypoint-initdb.d
+    networks:
+      - my-app-network
+    restart: always
+
+  # ------------------------------------
+  # 3. phpMyAdmin (データベース管理ツール)
+  # ------------------------------------
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin-app
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql-db
+      # パスワードなしでのログインを許可する設定
+      PMA_ARBITRARY: 1
+    depends_on:
+      - mysql-db
+    networks:
+      - my-app-network
+    restart: always
+
+# ------------------------------------
+# ネットワークとボリュームの定義
+# ------------------------------------
+networks:
+  my-app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+
+# --- ここまでをすべてコピーしてください ---

@@ -1,0 +1,16 @@
+コンテナまでの流れ
+git clone https://github.com/kyuna2190/AMS.git
+
+cd AMS
+
+docker-compose up -d
+
+最悪
+USBからファイルをデスクトップにおいて
+
+docker-compose up -d
+
+DBアドレスをmysql://mysql-db:3306　　にする
+
+古いの全削除
+docker-compose down -v

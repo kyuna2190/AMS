@@ -1,0 +1,259 @@
+-- accounttable
+CREATE TABLE accounttable (
+    Id VARCHAR(20),
+    Password TEXT NOT NULL,
+    Name TEXT(100) NOT NULL,
+    Permission INTEGER,
+    Status INTEGER,
+    PRIMARY KEY (Id(20))
+);
+
+-- department table
+CREATE TABLE department (
+    department_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    department_name TEXT
+);
+
+-- grade table
+CREATE TABLE grade (
+    grade_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    department_id INTEGER,
+    grade_name TEXT,
+    FOREIGN KEY (department_id) REFERENCES department(department_id)
+);
+
+-- major table
+CREATE TABLE major (
+    major_id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    grade_id INTEGER,
+    major_name TEXT,
+    FOREIGN KEY (grade_id) REFERENCES grade(grade_id)
+);
+
+-- belong table
+CREATE TABLE belong (
+    student_id VARCHAR(20),
+    department_id INTEGER,
+    grade_id INTEGER,
+    major_id INTEGER,
+    attendance_number INTEGER,
+    PRIMARY KEY (student_id(20)),
+    FOREIGN KEY (student_id) REFERENCES accounttable(id),
+    FOREIGN KEY (department_id) REFERENCES department(department_id),
+    FOREIGN KEY (grade_id) REFERENCES grade(grade_id),
+    FOREIGN KEY (major_id) REFERENCES major(major_id)
+);
+
+-- attendance table
+CREATE TABLE attendance (
+    student_id VARCHAR(20),
+    date DATE,
+    period_all INTEGER,
+    period_1 INTEGER,
+    period_2 INTEGER,
+    period_3 INTEGER,
+    period_4 INTEGER,
+    period_5 INTEGER,
+    period_6 INTEGER,
+    period_7 INTEGER,
+    period_8 INTEGER,
+    period_9 INTEGER,
+    note TEXT(100),
+    PRIMARY KEY (student_id(20), date),
+    FOREIGN KEY (student_id) REFERENCES accounttable(Id)
+);
+
+CREATE TABLE application_info (
+    application_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id VARCHAR(20),
+    application_date DATE,
+    status INT,
+    category INT,
+    target_date DATE,
+    target_date_end DATE,
+    periods VARCHAR(20),
+    reason VARCHAR(100),
+    responseDate DATE,
+    responder_id VARCHAR(20),
+    responder_comment VARCHAR(100),
+    printed_date DATE,
+    printed_by_id VARCHAR(20),
+    department_name VARCHAR(50),
+    course_name VARCHAR(50),
+    grade INT,
+    student_group VARCHAR(10),
+    student_name VARCHAR(50),
+    student_no VARCHAR(10),
+    contact INT,
+
+    FOREIGN KEY (student_id) REFERENCES accounttable(Id),
+    FOREIGN KEY (responder_id) REFERENCES accounttable(Id),
+    FOREIGN KEY (printed_by_id) REFERENCES accounttable(Id)
+);
+
+CREATE TABLE subject_info (
+    subject_id INT AUTO_INCREMENT PRIMARY KEY,
+    subject_name VARCHAR(100),
+    department_id INT,
+    grade_id INT,
+    major_id INT,
+
+    FOREIGN KEY (department_id) REFERENCES department(department_id),
+    FOREIGN KEY (grade_id) REFERENCES grade(grade_id),
+    FOREIGN KEY (major_id) REFERENCES major(major_id)
+);
+
+CREATE TABLE error_info (
+    error_id INT AUTO_INCREMENT PRIMARY KEY,
+    error_date DATE NOT NULL,
+    student_id VARCHAR(20),
+    reason VARCHAR(100),
+    status INT,
+
+    FOREIGN KEY (student_id) REFERENCES accounttable(Id)
+);
+
+CREATE TABLE daily_timetable (
+    timetable_id    INT AUTO_INCREMENT PRIMARY KEY,
+    `date`          DATE NOT NULL,
+    department_id   INT NOT NULL,
+    grade_id        INT NOT NULL,
+    major_id        INT,
+    period_1        INT DEFAULT NULL,
+    period_2        INT DEFAULT NULL,
+    period_3        INT DEFAULT NULL,
+    period_4        INT DEFAULT NULL,
+    period_5        INT DEFAULT NULL,
+    period_6        INT DEFAULT NULL,
+    period_7        INT DEFAULT NULL,
+    period_8        INT DEFAULT NULL,
+    period_9        INT DEFAULT NULL,
+    note            VARCHAR(255),
+    FOREIGN KEY (department_id) REFERENCES department(department_id) ON DELETE CASCADE,
+    FOREIGN KEY (grade_id)      REFERENCES grade(grade_id) ON DELETE CASCADE,
+    FOREIGN KEY (major_id)      REFERENCES major(major_id) ON DELETE CASCADE,
+    FOREIGN KEY (period_1)      REFERENCES subject_info(subject_id) ON DELETE SET NULL,
+    FOREIGN KEY (period_2)      REFERENCES subject_info(subject_id) ON DELETE SET NULL,
+    FOREIGN KEY (period_3)      REFERENCES subject_info(subject_id) ON DELETE SET NULL,
+    FOREIGN KEY (period_4)      REFERENCES subject_info(subject_id) ON DELETE SET NULL,
+    FOREIGN KEY (period_5)      REFERENCES subject_info(subject_id) ON DELETE SET NULL,
+    FOREIGN KEY (period_6)      REFERENCES subject_info(subject_id) ON DELETE SET NULL,
+    FOREIGN KEY (period_7)      REFERENCES subject_info(subject_id) ON DELETE SET NULL,
+    FOREIGN KEY (period_8)      REFERENCES subject_info(subject_id) ON DELETE SET NULL,
+    FOREIGN KEY (period_9)      REFERENCES subject_info(subject_id) ON DELETE SET NULL,
+    UNIQUE KEY uq_daily_class (`date`, department_id, grade_id, major_id)
+);
+
+-- 1. 情報スペシャリスト学科（3年課程）
+INSERT INTO department (department_name) VALUES ('情報スペシャリスト学科');
+SET @dept_id = LAST_INSERT_ID();
+
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '1年'); SET @g1 = LAST_INSERT_ID();
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '2年'); SET @g2 = LAST_INSERT_ID();
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '3年');
+
+INSERT INTO major (grade_id, major_name) VALUES
+(@g1, 'AI・IoT専攻'), (@g1, 'ネットワーク・セキュリティ専攻'),
+(@g2, 'AI・IoT専攻'), (@g2, 'ネットワーク・セキュリティ専攻');
+
+-- 2. 情報システム学科（2年課程）
+INSERT INTO department (department_name) VALUES ('情報システム学科');
+SET @dept_id = LAST_INSERT_ID();
+
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '1年'); SET @g1 = LAST_INSERT_ID();
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '2年'); SET @g2 = LAST_INSERT_ID();
+
+INSERT INTO major (grade_id, major_name) VALUES
+(@g1, 'アプリケーション専攻'), (@g1, 'クラウド・インフラ専攻'),
+(@g2, 'アプリケーション専攻'), (@g2, 'クラウド・インフラ専攻');
+
+-- 3. ゲーム・VRクリエイター学科
+INSERT INTO department (department_name) VALUES ('ゲーム・VRクリエイター学科');
+SET @dept_id = LAST_INSERT_ID();
+
+-- ゲーム：3年, VR：2年
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '1年'); SET @g1 = LAST_INSERT_ID();
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '2年'); SET @g2 = LAST_INSERT_ID();
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '3年'); SET @g3 = LAST_INSERT_ID();
+
+INSERT INTO major (grade_id, major_name) VALUES
+(@g1, 'ゲームクリエイターコース'), (@g1, 'VRクリエイターコース'),
+(@g2, 'ゲームクリエイターコース'), (@g2, 'VRクリエイターコース'),
+(@g3, 'ゲームクリエイターコース');
+
+-- 4. CGデザイン学科
+INSERT INTO department (department_name) VALUES ('CGデザイン学科');
+SET @dept_id = LAST_INSERT_ID();
+
+-- 3D：3年, イラスト：2年
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '1年'); SET @g1 = LAST_INSERT_ID();
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '2年'); SET @g2 = LAST_INSERT_ID();
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '3年'); SET @g3 = LAST_INSERT_ID();
+
+INSERT INTO major (grade_id, major_name) VALUES
+(@g1, '3DCGデザインコース'), (@g1, 'イラスト・デザインコース'),
+(@g2, '3DCGデザインコース'), (@g2, 'イラスト・デザインコース'),
+(@g3, '3DCGデザインコース');
+
+-- 5. ネット・動画クリエイター学科（2年課程）
+INSERT INTO department (department_name) VALUES ('ネット・動画クリエイター学科');
+SET @dept_id = LAST_INSERT_ID();
+
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '1年');
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '2年');
+
+-- 6. デジタルビジネス学科（データマーケター学科として存在）
+INSERT INTO department (department_name) VALUES ('デジタルビジネス学科');
+SET @dept_id = LAST_INSERT_ID();
+
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '1年');
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '2年');
+
+-- 7. ホテル・ブライダル・観光学科（2年課程）
+INSERT INTO department (department_name) VALUES ('ホテル・ブライダル・観光学科');
+SET @dept_id = LAST_INSERT_ID();
+
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '1年'); SET @g1 = LAST_INSERT_ID();
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '2年');
+
+INSERT INTO major (grade_id, major_name) VALUES
+(@g1, 'ホテル・ブライダル専攻'), (@g1, 'ホテル・観光・語学専攻');
+
+-- 8. 医療福祉事務学科（2年課程）
+INSERT INTO department (department_name) VALUES ('医療福祉事務学科');
+SET @dept_id = LAST_INSERT_ID();
+
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '1年');
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '2年');
+
+-- 9. 医療情報マネジメント学科（1〜2年）+診療情報管理士学科（3年）
+INSERT INTO department (department_name) VALUES ('医療情報マネジメント学科');
+SET @dept_id = LAST_INSERT_ID();
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '1年');
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '2年');
+
+INSERT INTO department (department_name) VALUES ('診療情報管理士学科');
+SET @dept_id = LAST_INSERT_ID();
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '3年');
+
+-- 10. 経営アシスト学科（2年課程）
+INSERT INTO department (department_name) VALUES ('経営アシスト学科');
+SET @dept_id = LAST_INSERT_ID();
+
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '1年'); SET @g1 = LAST_INSERT_ID();
+INSERT INTO major (grade_id, major_name) VALUES
+(@g1, '高度資格専攻'), (@g1, '地域イノベーション専攻');
+
+-- 11. 公務員総合学科（2年課程）
+INSERT INTO department (department_name) VALUES ('公務員総合学科');
+SET @dept_id = LAST_INSERT_ID();
+
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '1年');
+INSERT INTO grade (department_id, grade_name) VALUES (@dept_id, '2年');
+
+-- 12. 国際ITビジネス学科（3年課程）
+INSERT INTO department (department_name) VALUES ('国際ITビジネス学科');
+SET @dept_id = LAST_INSERT_ID();
+
+INSERT INTO grade (department_id, grade_name) VALUES
+(@dept_id, '1年'), (@dept_id, '2年'), (@dept_id, '3年');

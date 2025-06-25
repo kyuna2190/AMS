@@ -14,3 +14,6 @@ DBアドレスをmysql://mysql-db:3306　　にする
 
 古いの全削除
 docker-compose down -v
+
+ポート探し
+netstat -ano | findstr "3306"

@@ -10,7 +10,7 @@ USBからファイルをデスクトップにおいて
 
 docker-compose up -d
 
-DBアドレスをmysql://mysql-db:3306　　にする
+DBアドレスをmysql://mysql-db:3306/AWS　　にする
 
 古いの全削除
 docker-compose down -v

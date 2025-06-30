@@ -35,7 +35,8 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
       # このフォルダ内のSQLが初回起動時に実行されます
-      - ./initdb.d:/docker-entrypoint-initdb.d
+      # ここを修正しました: AMS/initdb.d からマウントします
+      - ./AMS/initdb.d:/docker-entrypoint-initdb.d
     networks:
       - my-app-network
     restart: always
@@ -65,5 +66,3 @@ networks:
 
 volumes:
   mysql-data:
-
-# --- 上書きはここまで ---
